@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Management Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>📋 App Dashboard</h2>
+        </div>
+        <nav class="nav">
+            <a href="#" data-view="dashboard" class="nav-item active">
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="#" data-view="applications" class="nav-item">
+                <span class="icon">📝</span> Applications
+            </a>
+            <a href="#" data-view="tickets" class="nav-item">
+                <span class="icon">🎫</span> Tickets
+            </a>
+            <a href="#" data-view="reminders" class="nav-item">
+                <span class="icon">⏰</span> Reminders
+            </a>
+            <a href="#" data-view="export" class="nav-item">
+                <span class="icon">📥</span> Export
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <!-- Dashboard View -->
+        <div id="dashboard" class="view active">
+            <header>
+                <h1>Dashboard</h1>
+                <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3>Total Applications</h3>
+                        <p class="stat-number" id="total-apps">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3>Pending Review</h3>
+                        <p class="stat-number pending" id="pending-apps">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3>Approved</h3>
+                        <p class="stat-number approved" id="approved-apps">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-content">
+                        <h3>Rejected</h3>
+                        <p class="stat-number rejected" id="rejected-apps">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-content">
+                        <h3>Approval Rate</h3>
+                        <p class="stat-number" id="approval-rate">0%</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-content">
+                        <h3>Avg Review Time</h3>
+                        <p class="stat-number" id="review-time">0 hrs</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <h2>Recent Applications</h2>
+                <div id="recent-apps" class="applications-list"></div>
+            </div>
+        </div>
+
+        <!-- Applications View -->
+        <div id="applications" class="view">
+            <header>
+                <h1>All Applications</h1>
+                <div class="header-controls">
+                    <select id="status-filter" onchange="filterApplications()">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <button class="refresh-btn" onclick="loadApplications()">🔄 Refresh</button>
+                </div>
+            </header>
+
+            <div id="applications-container" class="applications-list"></div>
+        </div>
+
+        <!-- Tickets View -->
+        <div id="tickets" class="view">
+            <header>
+                <h1>Support Tickets</h1>
+                <div class="header-controls">
+                    <select id="ticket-status-filter" onchange="filterTickets()">
+                        <option value="all">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <button class="refresh-btn" onclick="loadTickets()">🔄 Refresh</button>
+                </div>
+            </header>
+
+            <div id="tickets-container" class="tickets-list"></div>
+        </div>
+
+        <!-- Reminders View -->
+        <div id="reminders" class="view">
+            <header>
+                <h1>Pending Review Reminders</h1>
+                <button class="btn-primary" onclick="scheduleReminder()">Schedule Reminder</button>
+            </header>
+
+            <div class="reminder-settings">
+                <label>Check every (hours):</label>
+                <input type="number" id="reminder-hours" value="24" min="1" max="168">
+                <button class="btn-secondary" onclick="updateReminderSchedule()">Update Schedule</button>
+            </div>
+
+            <div id="reminders-container" class="reminders-list"></div>
+        </div>
+
+        <!-- Export View -->
+        <div id="export" class="view">
+            <header>
+                <h1>Export Applications</h1>
+            </header>
+
+            <div class="export-section">
+                <div class="export-card">
+                    <h3>📥 CSV Export</h3>
+                    <p>Export all applications to CSV format</p>
+                    <button class="btn-primary" onclick="exportCSV()">Download CSV</button>
+                </div>
+
+                <div class="export-card">
+                    <h3>📊 Excel Export</h3>
+                    <p>Export all applications to Excel format</p>
+                    <button class="btn-primary" onclick="exportExcel()">Download Excel</button>
+                </div>
+            </div>
+
+            <div class="export-info">
+                <h3>Export Information</h3>
+                <ul>
+                    <li>Includes all application details</li>
+                    <li>Contains review status and notes</li>
+                    <li>Timestamps for submission and review</li>
+                    <li>Reviewer information</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Review Application</h2>
+
+            <div id="application-details" class="app-details"></div>
+
+            <div class="review-form">
+                <div class="form-group">
+                    <label>Decision:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="decision" value="approved" checked> Approve</label>
+                        <label><input type="radio" name="decision" value="rejected"> Reject</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Review Notes:</label>
+                    <textarea id="review-notes" placeholder="Add any notes about this decision..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Reviewer Name:</label>
+                    <input type="text" id="reviewer-name" placeholder="Your name" value="Admin">
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+                    <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div id="ticket-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTicketModal()">&times;</span>
+            <h2>Ticket Details</h2>
+
+            <div id="ticket-details" class="app-details"></div>
+
+            <div class="ticket-form">
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="ticket-status">
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority:</label>
+                    <select id="ticket-priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Add Comment:</label>
+                    <textarea id="ticket-comment" placeholder="Add a comment..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="updateTicket()">Update Ticket</button>
+                    <button class="btn-secondary" onclick="closeTicketModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
